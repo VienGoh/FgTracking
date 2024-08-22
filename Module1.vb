@@ -54,3 +54,17 @@ Module Module1
     End Sub
 
 End Module
+
+
+
+    public class HardwareCategory : BaseEntity
+    {
+        [StringLength(50)]
+        public String Code { get; set; }
+        [ForeignKey("Code")]
+
+        [StringLength(200)]
+        public String Name { get; set; }
+        [StringLength(500)]
+        public String Descriptions { get; set; }
+    }
