@@ -68,3 +68,20 @@ End Module
         [StringLength(500)]
         public String Descriptions { get; set; }
     }
+
+
+
+                            {
+        "referId": null,
+        "pageNo": 0,
+        "pageSize": 9999,
+        "sorts": "",
+        "sortColumnName": "",
+        "sortOrder": "AddDate_UTC DESC",
+        "sortColumnNames": [],
+        "sortOrders": [],        
+        "filterParams": [],
+        "parameters": "",
+        "filters": "Disabled =\"false\" ",
+        "columns": "Id,Code,Name"
+}
