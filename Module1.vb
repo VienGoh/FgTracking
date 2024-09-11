@@ -57,31 +57,14 @@ End Module
 
 
 
-    public class HardwareCategory : BaseEntity
-    {
-        [StringLength(50)]
-        public String Code { get; set; }
-        [ForeignKey("Code")]
-
-        [StringLength(200)]
-        public String Name { get; set; }
-        [StringLength(500)]
-        public String Descriptions { get; set; }
-    }
-
-
-
-                            {
-        "referId": null,
-        "pageNo": 0,
-        "pageSize": 9999,
-        "sorts": "",
-        "sortColumnName": "",
-        "sortOrder": "AddDate_UTC DESC",
-        "sortColumnNames": [],
-        "sortOrders": [],        
-        "filterParams": [],
-        "parameters": "",
-        "filters": "Disabled =\"false\" ",
-        "columns": "Id,Code,Name"
-}
+ core.mjs:1139 Uncaught Error: Type TelerikReportingModule does not have 'ɵmod' property.
+    at getNgModuleDef (core.mjs:1139)
+    at recurse (core.mjs:21911)
+    at recurse (core.mjs:21922)
+    at recurse (core.mjs:21922)
+    at registerNgModuleType (core.mjs:21907)
+    at new NgModuleFactory (core.mjs:22029)
+    at compileNgModuleFactory (core.mjs:26075)
+    at PlatformRef.bootstrapModule (core.mjs:26318)
+    at Module.14431 (main.ts:13)
+    at __webpack_require__ (bootstrap:19)
