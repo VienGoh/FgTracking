@@ -56,15 +56,8 @@ Module Module1
 End Module
 
 
-
- core.mjs:1139 Uncaught Error: Type TelerikReportingModule does not have 'ɵmod' property.
-    at getNgModuleDef (core.mjs:1139)
-    at recurse (core.mjs:21911)
-    at recurse (core.mjs:21922)
-    at recurse (core.mjs:21922)
-    at registerNgModuleType (core.mjs:21907)
-    at new NgModuleFactory (core.mjs:22029)
-    at compileNgModuleFactory (core.mjs:26075)
-    at PlatformRef.bootstrapModule (core.mjs:26318)
-    at Module.14431 (main.ts:13)
-    at __webpack_require__ (bootstrap:19)
+            ITSM.Logging.Contracts.Logging.LogLevel logs = ITSM.Logging.Contracts.Logging.LogLevel.Debug;
+void Debug(Exception exception,
+           string message,
+           string issueTypeCode = nameof(DefaultIssueType.undefined),
+           params object[] objs)
