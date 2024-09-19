@@ -61,3 +61,4 @@ void Debug(Exception exception,
            string message,
            string issueTypeCode = nameof(DefaultIssueType.undefined),
            params object[] objs)
+https://devops.mmh-global.com/DefaultCollection/ITSM/_git/LIB_ITSMLogging
