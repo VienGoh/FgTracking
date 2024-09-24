@@ -55,10 +55,7 @@ Module Module1
 
 End Module
 
-
-            ITSM.Logging.Contracts.Logging.LogLevel logs = ITSM.Logging.Contracts.Logging.LogLevel.Debug;
-void Debug(Exception exception,
-           string message,
-           string issueTypeCode = nameof(DefaultIssueType.undefined),
-           params object[] objs)
-https://devops.mmh-global.com/DefaultCollection/ITSM/_git/LIB_ITSMLogging
+ return (from im in _dbContext.InventoryMovements.AsTracking().Include(x => x.Product).Include(y => y.Supplier).Include(za => za.Customer)
+                    join t in _dbContext.TransactionTypeCodes on im.TransactionTypeCode equals t.Id
+                    where im.Disabled == false
+                    select (im))
