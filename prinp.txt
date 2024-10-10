@@ -1,0 +1,216 @@
+	Public Sub PrintPO()
+        Try
+
+            Dim Bahasa As String = ""
+            Dim NoPo As String = ""
+            Dim KetTambahan As String = ""
+            Dim isPreview As String = ""
+            Dim SqlConstr As String = GetConnectionString(My.Settings.Server, My.Settings.Database, "ASF Print PO", False, "sa", "ipiserver!234")
+            Dim l_DT As DataTable = GetDataTable("SELECT CAST(" & StrSQL(Bahasa) & " AS VARCHAR(50)) AS Bahasa,CAST ( " & StrSQL(isPreview) & " AS VARCHAR(50)) AS Preview, CAST(" & StrSQL(NoPo) & " AS VARCHAR(50)) AS NoPo",
+                                 SqlConstr)
+
+            Dim l_schema As DataTable = l_DT.Copy
+            l_schema.Rows.Clear()
+
+            Dim l As New List(Of Object)
+            l.Add(New clsCommonDetailItem_ComboBoxEdit With {.RowName = "Bahasa", .RowFriendlyName = "Language", .RowDescription = "Language", .Items = {"Indonesia", "English"}})
+            l.Add(New clsCommonDetailItem With {.RowName = "NoPo", .RowFriendlyName = "Document No", .RowDescription = "No Purchase Order", .IsReadOnly = True})
+            l.Add(New clsCommonDetailItem_ComboBoxEdit With {.RowName = "Preview", .RowFriendlyName = "Preview", .RowDescription = "Preview", .Items = {"No", "Yes"}})
+            Dim f As New frmCommonDetail With {.Text = "Print PO", .DataSource = l_DT, .Schema = l_schema, .ListCustomItem = l, .ButtonSaveText = "Print"}
+            l_DT.Clear()
+            l_DT.Rows.Add()
+            l_DT.Rows(0).Item("Bahasa") = "Indonesia"
+            l_DT.Rows(0).Item("NoPo") = DocumentNo
+            l_DT.Rows(0).Item("Preview") = "Yes"
+            Dim param As New List(Of Object)
+
+
+            If f.ShowDialog() = DialogResult.OK Then
+                Bahasa = IsNulls(f.Result.Item("Bahasa"), "")
+                NoPo = IsNulls(f.Result.Item("NoPo"), "")
+                isPreview = IsNulls(f.Result.Item("Preview"), "")
+
+
+                Dim AmountInWord As String = ""
+                Dim DecimalInWord As String = "" 'TAMBAHAN RICKY 13 JULI 2024
+
+                Dim Total As Double 'PERUBAHAN 13-07-24 RICKY
+
+                Dim Query As String = "SELECT DISTINCT Ph.No_ as DocumentNo,Pl.[Line No_],Ph.[Buy-from Vendor No_] as BuyFromNo,[Pay-to Name] as SupplierName,
+                    Pt.Description as SyaratPembayaran,
+                    Ven.City as ShipPc,
+                    Ven.[Post Code] as ShipPostCode,
+                    Pl.No_,
+                    Pcl.Comment KetTambahan,
+                    Ph.[FSC Type],
+                    Ph.[Ship-to Name] ShipName,Ph.[Ship-to Address] ShipAddress,Ph.[Ship-to Address 2] ShipAddress2,Ph.[Ship-to City] Sc,Ph.[Ship-to Post Code] Spc,
+                    CASE WHEN Ph.[Currency Code] <>'' THEN Ph.[Currency Code]
+                    WHEN Ven.[Currency Code] <> '' THEN Ven.[Currency Code]
+                    WHEN Ph.[Currency Code] = '' and Ven.[Currency Code] = '' THEN 'IDR' END AS CurrencyCode,
+                    Ph.[Order Date] as TglPO,Ven.[Phone No_] as Telp,Ven.[Fax No_] as Fax,Ven.Contact as UpToName,Pl.Description as NamaItem,
+                    CASE WHEN  Pl.Quantity = 0 THEN  Pl.[Ordered Quantity] ELSE Pl.Quantity END as Qty,
+                    CAST(Pl.[Direct Unit Cost] AS DECIMAL(18,2)) [Direct Unit Cost] ,CAST((Pl.[Direct Unit Cost] * CASE WHEN  Pl.[PV Quantity] = 0 THEN  Pl.[Ordered Quantity] ELSE Pl.[PV Quantity] END - Pl.[Line Discount Amount]) *(Pl.[VAT _]/100) AS DECIMAL(18,2)) as PPN,
+                    CAST(Pl.[Line Discount Amount] AS DECIMAL(18,2))as Diskon,
+                    Ven.Address as Alamat,
+                    Pl.[Expected Receipt Date] as TglSerah,
+		            --CAST(CASE WHEN Pl.[Amount Including VAT] = 0 THEN (Pl.[Direct Unit Cost] * Pl.Quantity -Pl.[Line Discount Amount])   ELSE Pl.[Amount Including VAT] END AS DECIMAL(18,2)) AS Jumlah,
+                    CAST(
+                        CASE 
+                            WHEN Pl.[VAT _] = 0 THEN 
+                            Pl.[Direct Unit Cost] * Pl.Quantity - Pl.[Line Discount Amount]
+                            ELSE 
+                            CASE 
+                            WHEN RIGHT(CAST(ROUND((Pl.[Direct Unit Cost] * Pl.Quantity - Pl.[Line Discount Amount]) * (1 + (Pl.[VAT _] / 100)),2) AS VARCHAR(50)), 2) = '99'
+                            THEN ROUND((Pl.[Direct Unit Cost] * Pl.Quantity - Pl.[Line Discount Amount]) * (1 + (Pl.[VAT _] / 100)) + 0.01,2)
+                            ELSE ROUND((Pl.[Direct Unit Cost] * Pl.Quantity - Pl.[Line Discount Amount]) * (1 + (Pl.[VAT _] / 100)),1)
+                           END
+                        END 
+                    AS DECIMAL(18, 2)) AS Jumlah,
+                    Pl.[Unit of Measure Code] as Satuan, CAST(Pl.[Direct Unit Cost] AS DECIMAL(18,2)) as Harga from [PT Industri Pembungkus Intl_$Purchase Header] Ph
+                    INNER JOIN [PT Industri Pembungkus Intl_$Vendor] Ven ON Ven.No_ = Ph.[Buy-from Vendor No_]
+                    INNER JOIN [PT Industri Pembungkus Intl_$Purchase Line] Pl on Pl.[Document No_] = Ph.No_
+                    LEFT JOIN [PT Industri Pembungkus Intl_$Payment Terms] Pt on Pt.Code = Ph.[Payment Terms Code]                    
+					LEFT JOIN [PT Industri Pembungkus Intl_$Purch_ Comment Line] Pcl on Pcl.No_ = Ph.No_ AND Pcl.[Line No_] = Pl.[Line No_]
+                    where Ph.No_ = " & StrSQL(NoPo) & "
+                    ORDER BY Pl.[Line No_]"
+
+
+                Dim dttemp As DataTable = GetDataTable(Query, SqlConstr, 120)
+                Dim dtkettambahan As DataTable = GetDataTable("SELECT Comment KetTambahan from [PT Industri Pembungkus Intl_$Purch_ Comment Line] Where No_ = " & StrSQL(NoPo), SqlConstr)
+
+
+                Dim z = 0
+                For Each row In dttemp.Rows
+                    Total += row.item("Jumlah")
+                Next
+
+                If dtkettambahan.Rows.Count > 0 Then
+                    For Each row In dtkettambahan.Rows
+                        If IsNulls(row.item("KetTambahan"), "") <> "" Then
+                            If z = 0 Then
+                                KetTambahan = KetTambahan & row.Item("KetTambahan")
+                                z = z + 1
+                            Else
+                                KetTambahan = KetTambahan & vbCrLf & row.Item("KetTambahan")
+                            End If
+                        End If
+                    Next
+                End If
+
+
+                Dim AddNoDt As DataTable = dttemp.Copy
+                AddNoDt.Columns.Add("Index")
+                Dim X As Integer = 1
+
+                For Each Row In AddNoDt.Rows
+                    If IsNulls(Row.item("No_"), "") <> "" Then
+                        Row.item("Index") = X
+                        X = X + 1
+                    End If
+                Next
+
+                ' DIEDIT OLEH RICKY 13 JULI 2024 - PECAH DESIMAL JIKA ADA & TAMBAH CURRENCY
+                Dim pecahInteger As Long = Math.Floor(Total)
+                Dim pecahDesimal As Long = CInt((Total - pecahInteger) * 100)
+
+                If Bahasa = "Indonesia" Then
+                    AmountInWord = Terbilang(pecahInteger)
+
+                    If dttemp.Rows(0)("CurrencyCode") = "IDR" Then
+                        AmountInWord = AmountInWord & " RUPIAH"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "USD" Or dttemp.Rows(0)("CurrencyCode") = "SGD" Or dttemp.Rows(0)("CurrencyCode") = "AUD" Or dttemp.Rows(0)("CurrencyCode") = "HKD" Then
+                        AmountInWord = AmountInWord & " DOLAR"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "EUR" Then
+                        AmountInWord = AmountInWord & " EURO"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "GBP" Then
+                        AmountInWord = AmountInWord & " POUND"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "JPY" Then
+                        AmountInWord = AmountInWord & " YEN"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "CNY" Then
+                        AmountInWord = AmountInWord & " YUAN"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "MYR" Then
+                        AmountInWord = AmountInWord & " RINGGIT"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "KYR" Then
+                        AmountInWord = AmountInWord & " WON"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "THB" Then
+                        AmountInWord = AmountInWord & " BAHT"
+                    Else
+                        AmountInWord = AmountInWord & " (" & dttemp.Rows(0)("CurrencyCode") & ")"
+                    End If
+
+                    If pecahDesimal <> 0 Then
+                        DecimalInWord = Terbilang(pecahDesimal)
+
+                        If dttemp.Rows(0)("CurrencyCode") = "IDR" Then
+                            AmountInWord = AmountInWord & " DAN " & DecimalInWord & " RUPIAH"
+                        Else
+                            AmountInWord = AmountInWord & " DAN " & DecimalInWord & " SEN"
+                        End If
+                    End If
+                ElseIf Bahasa = "English" Then
+                    AmountInWord = AmountInWords(pecahInteger)
+
+                    If dttemp.Rows(0)("CurrencyCode") = "IDR" Then
+                        AmountInWord = AmountInWord & " RUPIAH"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "USD" Or dttemp.Rows(0)("CurrencyCode") = "SGD" Or dttemp.Rows(0)("CurrencyCode") = "AUD" Or dttemp.Rows(0)("CurrencyCode") = "HKD" Then
+                        AmountInWord = AmountInWord & " DOLLAR"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "EUR" Then
+                        AmountInWord = AmountInWord & " EUROS"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "GBP" Then
+                        AmountInWord = AmountInWord & " POUNDS"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "JPY" Then
+                        AmountInWord = AmountInWord & " YEN"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "CNY" Then
+                        AmountInWord = AmountInWord & " YUAN"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "MYR" Then
+                        AmountInWord = AmountInWord & " RINGGIT"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "KYR" Then
+                        AmountInWord = AmountInWord & " WON"
+                    ElseIf dttemp.Rows(0)("CurrencyCode") = "THB" Then
+                        AmountInWord = AmountInWord & " BAHT"
+                    Else
+                        AmountInWord = AmountInWord & " (" & dttemp.Rows(0)("CurrencyCode") & ")"
+                    End If
+
+                    If pecahDesimal <> 0 Then
+                        DecimalInWord = AmountInWords(pecahDesimal)
+
+                        If dttemp.Rows(0)("CurrencyCode") = "IDR" Then
+                            AmountInWord = AmountInWord & " AND " & DecimalInWord & " RUPIAH"
+                        Else
+                            AmountInWord = AmountInWord & " AND " & DecimalInWord & " CENT"
+                        End If
+                    End If
+                End If
+                ' AKHIR DIEDIT OLEH RICKY 13 JULI 2024 - PECAH DESIMAL JIKA ADA & TAMBAH CURRENCY
+
+                If isPreview = "No" Then
+                    Dim lbl As New CrystalDecisions.CrystalReports.Engine.ReportClass
+                    lbl = New RptPO
+                    lbl.SetDataSource(AddNoDt)
+                    lbl.VerifyDatabase()
+                    lbl.Refresh()
+                    lbl.SetParameterValue("Language", Bahasa)
+                    lbl.SetParameterValue("Terbilang", AmountInWord)
+
+                    lbl.SetParameterValue("KetTambahan", KetTambahan)
+                    lbl.PrintToPrinter(1, False, 1, 1)
+                    lbl.Close()
+                    lbl.Dispose()
+                Else
+                    param.Add(Bahasa)
+                    param.Add(AmountInWord)
+                    param.Add(KetTambahan)
+                    Dim fCR As New frmCrystalReport With {
+                .ObjReport = New RptPO,
+                .ReportParameter = param,
+                .DataSource = AddNoDt}
+                    FlushMemory("AppSpecialFunction")
+                    fCR.ShowDialog()
+                End If
+            End If
+
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
