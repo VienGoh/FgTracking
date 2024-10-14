@@ -59,3 +59,71 @@ End Module
                     join t in _dbContext.TransactionTypeCodes on im.TransactionTypeCode equals t.Id
                     where im.Disabled == false
                     select (im))
+[HttpPost]
+    public async Task<IActionResult> PostProductRequest([FromBody] ProductRequest productRequest)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        // Logika membuat Product baru
+        var newProduct = new Product
+        {
+            Name = "New Product from Request", // Kamu bisa menggunakan data dari productRequest untuk ini
+            Price = 100 // Sesuaikan sesuai dengan data yang relevan
+        };
+
+        // Tambahkan Product ke database
+        _context.Products.Add(newProduct);
+        await _context.SaveChangesAsync(); // Simpan untuk mendapatkan ProductId
+
+        // Setelah Product disimpan, tambahkan ProductId ke ProductRequest
+        productRequest.ProductId = newProduct.ProductId;
+
+        // Simpan ProductRequest
+        _context.ProductRequests.Add(productRequest);
+        await _context.SaveChangesAsync(); // Simpan perubahan ke database
+
+        return CreatedAtAction("GetProductRequest", new { id = productRequest.ProductRequestId }, productRequest);
+    }
+
+    // Metode GetProductRequest untuk melihat ProductRequest yang telah dipost
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductRequest(int id)
+    {
+        var productRequest = await _context.ProductRequests.FindAsync(id);
+
+        if (productRequest == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(productRequest);
+    }
+}
+Penjelasan:
+Route dan Controller: Controller ini ditujukan untuk ProductRequest. Dengan demikian, segala operasi terkait ProductRequest, termasuk pembuatan Product, diletakkan di sini.
+
+POST Metode: Di dalam metode POST ini:
+
+Sebuah Product baru dibuat terlebih dahulu.
+Produk tersebut disimpan dan menghasilkan ProductId.
+ProductId tersebut kemudian dimasukkan ke dalam ProductRequest.
+ProductRequest kemudian disimpan ke database.
+API Route: Rute API ini adalah api/ProductRequest, yang mengikuti konvensi RESTful, karena tindakan utama yang terjadi adalah membuat permintaan produk.
+
+Kesimpulan:
+Dengan menempatkan logika di dalam ProductRequestController, kamu mempertahankan struktur API yang konsisten dan mudah diikuti. Jika di masa mendatang ada perubahan dalam logika pembuatan produk dari permintaan, kamu akan lebih mudah memodifikasi kode di satu tempat yang relevan.
+
+
+
+
+
+
+
+
+
+
+
+ChatGPT 
