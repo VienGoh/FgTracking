@@ -119,11 +119,50 @@ Dengan menempatkan logika di dalam ProductRequestController, kamu mempertahankan
 
 
 
+Kelebihan
+Akurasi Hasil Parafrase yang Baik
+Model IndoT5 yang dituning dengan GPT-2 menunjukkan performa yang unggul dalam menghasilkan parafrase yang tetap mempertahankan makna dari teks asli. Hasil parafrase yang dihasilkan memiliki struktur kalimat yang berbeda namun tetap mudah dipahami oleh pembaca.
 
+Penggunaan Metrik Evaluasi BLEU dan ROUGE
+Evaluasi berbasis metrik BLEU dan ROUGE memberikan pendekatan yang objektif dalam mengukur kualitas hasil parafrase. Metrik BLEU sangat cocok untuk menilai kesamaan antara hasil parafrase dengan referensi, sementara ROUGE membantu mengevaluasi cakupan dan urutan kata yang relevan. Kombinasi kedua metrik ini memastikan hasil yang lebih komprehensif.
 
+Kemampuan Generalisasi yang Baik
+Dengan tuning model IndoT5 berbasis GPT-2, aplikasi memiliki kemampuan generalisasi yang baik untuk berbagai jenis teks, mulai dari teks formal hingga semi-formal. Hal ini membuat aplikasi dapat digunakan dalam berbagai konteks, seperti pengolahan teks artikel berita, jurnal ilmiah, hingga konten media sosial.
 
+Fleksibilitas dalam Penanganan Teks Panjang
+Aplikasi ini dapat menangani teks dengan panjang yang bervariasi, meskipun memerlukan waktu pemrosesan tambahan untuk teks yang sangat panjang. Fleksibilitas ini memungkinkan pengguna untuk memproses berbagai ukuran dokumen tanpa hambatan yang signifikan.
 
+Kemudahan Integrasi dengan Aplikasi Lain
+Berkat arsitektur berbasis API dan modularitas sistem, aplikasi ini dapat dengan mudah diintegrasikan dengan aplikasi berbasis teks lainnya, seperti chatbot, sistem manajemen konten, atau aplikasi pembelajaran berbasis teks.
 
+Kemampuan Tuning Model yang Efektif
+Proses tuning model menggunakan GPT-2 memberikan peningkatan yang signifikan dalam kualitas parafrase dibandingkan model yang tidak dituning. Dengan tuning yang lebih lanjut, kualitas aplikasi ini dapat terus ditingkatkan.
 
+Antarmuka Pengguna yang Sederhana dan Intuitif
+Antarmuka aplikasi dirancang dengan mempertimbangkan kenyamanan pengguna. Tampilan yang sederhana memudahkan pengguna dalam melakukan parafrase tanpa memerlukan panduan yang rumit.
 
-ChatGPT 
+Kekurangan
+Waktu Pemrosesan yang Relatif Lama
+Salah satu kekurangan utama aplikasi ini adalah waktu pemrosesan yang relatif lama, terutama ketika menangani teks dalam jumlah besar. Hal ini disebabkan oleh kompleksitas model Transformers yang digunakan. Dalam implementasi nyata, waktu tunggu yang panjang dapat mengurangi kenyamanan pengguna.
+
+Kebutuhan Komputasi yang Tinggi
+Model deep learning seperti IndoT5 yang dituning dengan GPT-2 memerlukan perangkat keras dengan spesifikasi tinggi, seperti GPU dengan memori besar, agar dapat berjalan secara optimal. Pada perangkat keras yang kurang memadai, performa aplikasi dapat menurun drastis.
+
+Ketergantungan pada Dataset Pelatihan
+Kualitas hasil parafrase sangat bergantung pada dataset yang digunakan untuk tuning model. Jika dataset yang digunakan kurang representatif, hasil parafrase dapat menjadi kurang akurat atau tidak sesuai dengan konteks yang diinginkan.
+
+Kesulitan dalam Menangani Bahasa Non-Formal
+Model masih mengalami kesulitan dalam menangani teks dengan gaya bahasa non-formal atau slang. Hal ini menjadi tantangan jika aplikasi digunakan untuk memproses teks dari media sosial atau komunikasi informal lainnya.
+
+Evaluasi Manual Masih Diperlukan
+Meskipun metrik BLEU dan ROUGE memberikan evaluasi otomatis yang cukup baik, evaluasi manual tetap diperlukan untuk memastikan bahwa hasil parafrase benar-benar sesuai dengan makna teks asli. Hal ini memerlukan waktu dan tenaga tambahan, terutama untuk evaluasi dalam skala besar.
+
+Keterbatasan dalam Konteks Semantik yang Kompleks
+Model dapat menghasilkan parafrase yang tidak sepenuhnya mempertahankan makna asli ketika teks memiliki konteks semantik yang kompleks. Ini menjadi tantangan khusus dalam teks ilmiah atau dokumen hukum yang membutuhkan presisi tinggi.
+
+Kendala dalam Penanganan Multibahasa
+Meskipun model IndoT5 dirancang untuk bahasa Indonesia, aplikasi ini belum optimal untuk menangani teks yang mengandung campuran bahasa (code-switching) atau bahasa daerah. Ini menjadi kendala jika pengguna ingin memproses teks yang multibahasa.
+
+Pemeliharaan Model yang Kompleks
+Untuk menjaga kualitas hasil parafrase, model memerlukan pemeliharaan dan pembaruan secara berkala, termasuk retraining dengan dataset terbaru. Hal ini dapat menjadi tantangan dalam jangka panjang.
+
