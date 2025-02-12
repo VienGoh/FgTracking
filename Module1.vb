@@ -166,3 +166,4 @@ Meskipun model IndoT5 dirancang untuk bahasa Indonesia, aplikasi ini belum optim
 Pemeliharaan Model yang Kompleks
 Untuk menjaga kualitas hasil parafrase, model memerlukan pemeliharaan dan pembaruan secara berkala, termasuk retraining dengan dataset terbaru. Hal ini dapat menjadi tantangan dalam jangka panjang.
 
+https://learn.microsoft.com/en-us/training/courses/ai-900t00
